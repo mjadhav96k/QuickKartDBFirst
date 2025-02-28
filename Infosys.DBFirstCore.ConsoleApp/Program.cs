@@ -259,54 +259,99 @@ public class Program
         #region Track changes within the context class
         using (var context = new QuickKartDbContext())
         {
-            Console.WriteLine("------------------------------");
-            Console.WriteLine("          Unchanged           ");
-            Console.WriteLine("------------------------------");
-            var categoriesList = context.Categories
-                                        .OrderBy(x => x.CategoryId)
-                                        .Select(x => x)
-                                        .ToList();
-            Console.WriteLine("CategoryId\tCategoryName");
-            Console.WriteLine("------------------------------");
-            foreach (var category in categoriesList)
-            {
-                Console.WriteLine("{0}\t\t{1}", category.CategoryId, category.CategoryName);
-            }
-            Console.WriteLine("---------------------------");
-            Console.WriteLine("          Added          ");
-            Console.WriteLine("---------------------------");
-            Category newCategory = new Category();
-            newCategory.CategoryName = "Cosmetics";
-            context.Categories.Add(newCategory);
-            TrackEntityStates(context.ChangeTracker.Entries());
-            Console.WriteLine("------------------------------");
-            Console.WriteLine("          Modified          ");
-            Console.WriteLine("------------------------------");
-            byte categoryId = 10;
-            Category updateCategory = context.Categories.Find(categoryId);
-            updateCategory.CategoryName = "Footwear";
-            TrackEntityStates(context.ChangeTracker.Entries());
-            Console.WriteLine("------------------------------");
-            Console.WriteLine("          Deleted          ");
-            Console.WriteLine("------------------------------");
-            categoryId = 8;
-            Category deleteCategory = context.Categories.Find(categoryId);
-            context.Categories.Remove(deleteCategory);
-            TrackEntityStates(context.ChangeTracker.Entries());
-            Console.WriteLine("------------------------------");
-            Console.WriteLine("          Detached          ");
-            Console.WriteLine("------------------------------");
-            var detachedCategory = new Category();
-            detachedCategory.CategoryName = "Gifts & Greetings";
-            using (var newContext = new QuickKartDbContext())
-            {
-                Console.WriteLine("State before Add(): {0}\n", newContext.Entry(detachedCategory).State);
-                newContext.Categories.Add(detachedCategory);
-                TrackEntityStates(newContext.ChangeTracker.Entries());
-            }
+            //Console.WriteLine("------------------------------");
+            //Console.WriteLine("          Unchanged           ");
+            //Console.WriteLine("------------------------------");
+            //var categoriesList = context.Categories
+            //                            .OrderBy(x => x.CategoryId)
+            //                            .Select(x => x)
+            //                            .ToList();
+            //Console.WriteLine("CategoryId\tCategoryName");
+            //Console.WriteLine("------------------------------");
+            //foreach (var category in categoriesList)
+            //{
+            //    Console.WriteLine("{0}\t\t{1}", category.CategoryId, category.CategoryName);
+            //}
+            //Console.WriteLine("---------------------------");
+            //Console.WriteLine("          Added          ");
+            //Console.WriteLine("---------------------------");
+            //Category newCategory = new Category();
+            //newCategory.CategoryName = "Cosmetics";
+            //context.Categories.Add(newCategory);
+            //TrackEntityStates(context.ChangeTracker.Entries());
+            //Console.WriteLine("------------------------------");
+            //Console.WriteLine("          Modified          ");
+            //Console.WriteLine("------------------------------");
+            //byte categoryId = 10;
+            //Category updateCategory = context.Categories.Find(categoryId);
+            //updateCategory.CategoryName = "Footwear";
+            //TrackEntityStates(context.ChangeTracker.Entries());
+            //Console.WriteLine("------------------------------");
+            //Console.WriteLine("          Deleted          ");
+            //Console.WriteLine("------------------------------");
+            //categoryId = 8;
+            //Category deleteCategory = context.Categories.Find(categoryId);
+            //context.Categories.Remove(deleteCategory);
+            //TrackEntityStates(context.ChangeTracker.Entries());
+            //Console.WriteLine("------------------------------");
+            //Console.WriteLine("          Detached          ");
+            //Console.WriteLine("------------------------------");
+            //var detachedCategory = new Category();
+            //detachedCategory.CategoryName = "Gifts & Greetings";
+            //using (var newContext = new QuickKartDbContext())
+            //{
+            //    Console.WriteLine("State before Add(): {0}\n", newContext.Entry(detachedCategory).State);
+            //    newContext.Categories.Add(detachedCategory);
+            //    TrackEntityStates(newContext.ChangeTracker.Entries());
+            //}
         }
 
         #endregion
+
+        #region Call Stored Procedure
+        //byte categoryId = 0;
+        //int returnResult = repository.AddCategoryDetailsUsingUSP("Footwear", out categoryId);
+        //if (returnResult > 0)
+        //{
+        //    Console.WriteLine("Category details added successfully with CategoryId = " + categoryId);
+        //}
+        //else
+        //{
+        //    Console.WriteLine("Some error occurred. Try again!");
+        //} 
+        #endregion
+
+        #region Call TVF
+        byte categoryId = 1;
+        var products = repository.GetProductsUsingTVF(categoryId);
+        Console.WriteLine("{0, -12}{1, -30}{2}", "ProductId", "ProductName", "CategoryName");
+        Console.WriteLine("------------------------------------------------------");
+        if (products == null || products.Count == 0)
+        {
+            Console.WriteLine("No products available under the given category!");
+        }
+        else
+        {
+            foreach (var product in products)
+            {
+                Console.WriteLine("{0, -12}{1, -30}{2}", product.ProductId, product.ProductName, product.CategoryName);
+            }
+        }
+        #endregion
+
+        string productId = repository.GetNewProductId();
+        Console.WriteLine("New ProductId = " + productId);
+        Console.WriteLine();
+
+        bool result = repository.CheckEmailId("Ivy@gmail.com");
+        if (result)
+        {
+            Console.WriteLine("EMailId can be used to register new user!");
+        }
+        else
+        {
+            Console.WriteLine("EmailId exists! Please use a new EmailId!!");
+        }
     }
     private static void TrackEntityStates(IEnumerable<EntityEntry> entries)
     {
